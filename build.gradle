@@ -34,6 +34,9 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
+        maven{
+            url 'https://jitpack.io'
+        }
         maven {
             url 'http://localhost:8081/repository/md_release/'
             credentials {
