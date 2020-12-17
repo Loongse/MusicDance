@@ -70,6 +70,7 @@ public class HomeActivity extends FragmentActivity implements View.OnClickListen
         MagicIndicator magicIndicator = findViewById(R.id.magic_indicator);
         magicIndicator.setBackgroundColor(Color.WHITE);
         CommonNavigator commonNavigator = new CommonNavigator(this);
+        commonNavigator.setAdjustMode(true);
         commonNavigator.setAdapter(new CommonNavigatorAdapter() {
             @Override
             public int getCount() {
@@ -79,7 +80,7 @@ public class HomeActivity extends FragmentActivity implements View.OnClickListen
             @Override
             public IPagerTitleView getTitleView(Context context, int index) {
                 SimplePagerTitleView simplePagerTitleView = new ScaleTransitionPagerTitleView(context);
-                simplePagerTitleView.setText(CHANNELS[index].getValue());
+                simplePagerTitleView.setText(CHANNELS[index].getKey());
                 simplePagerTitleView.setTextSize(19);
                 simplePagerTitleView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
                 simplePagerTitleView.setNormalColor(Color.parseColor("#999999"));
