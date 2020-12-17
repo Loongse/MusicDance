@@ -4,13 +4,14 @@ plugins {
 
 android {
     compileSdkVersion this.rootProject.android.compileSdkVersion
-
+    dexOptions {
+        jumboMode = true
+    }
     defaultConfig {
         minSdkVersion this.rootProject.android.minSdkVersion
         targetSdkVersion this.rootProject.android.targetSdkVersion
         versionCode this.rootProject.android.versionCode
         versionName this.rootProject.android.versionName
-        multiDexEnabled this.rootProject.android.multiDexEnabled
     }
 
 
@@ -28,5 +29,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation this.rootProject.depsLibs.appcompat
+    compileOnly this.rootProject.depsLibs.appcompat
+    api this.rootProject.depsLibs.okhttp //okhttp依赖
 }
