@@ -6,13 +6,19 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.md.lib_common_ui.base.BaseActivity;
 import com.md.lib_common_ui.pager_indictor.ScaleTransitionPagerTitleView;
+import com.md.lib_image_loader.app.ImageLoaderManager;
 import com.md.md_voice.R;
 import com.md.md_voice.view.home.adapter.HomePagerAdapter;
 import com.md.md_voice.view.home.model.CHANNEL;
+import com.md.md_voice.view.login.LoginActivity;
+import com.md.md_voice.view.login.manager.UserManager;
+import com.md.md_voice.view.login.user.LoginEvent;
 
 import net.lucode.hackware.magicindicator.MagicIndicator;
 import net.lucode.hackware.magicindicator.ViewPagerHelper;
@@ -21,6 +27,10 @@ import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.CommonNav
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.IPagerIndicator;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.abs.IPagerTitleView;
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.SimplePagerTitleView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class HomeActivity extends BaseActivity implements View.OnClickListener {
     //指示首页需要出现的卡片
@@ -41,9 +51,13 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     private ViewPager mViewPager;
     private HomePagerAdapter mAdapter;
 
+    private View unLoginLayout;
+    private ImageView mPhoneView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_home);
         initView();
         initData();
@@ -63,6 +77,10 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
         mAdapter = new HomePagerAdapter(getSupportFragmentManager(), CHANNELS);
         mViewPager.setAdapter(mAdapter);
         initMagicIndicator();
+        //登录UI
+        unLoginLayout = findViewById(R.id.unloggin_layout);
+        unLoginLayout.setOnClickListener(this);
+        mPhoneView = findViewById(R.id.avatr_view);
     }
 
     // 初始化指示器
@@ -109,7 +127,29 @@ public class HomeActivity extends BaseActivity implements View.OnClickListener {
     }
 
     @Override
-    public void onClick(View view) {
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.unloggin_layout:
+                if (!UserManager.getInstance().hasLogin()) {
+                    LoginActivity.start(this);
+                } else {
+                    mDrawerLayout.closeDrawer(Gravity.LEFT);
+                }
+                break;
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLoginEvent(LoginEvent event) {
+        unLoginLayout.setVisibility(View.GONE);
+        mPhoneView.setVisibility(View.VISIBLE);
+        ImageLoaderManager.getInstance()
+                .displayImageForCircle(mPhoneView, UserManager.getInstance().getUser().data.photoUrl);
     }
 }

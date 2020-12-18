@@ -33,7 +33,7 @@ public class SpreadView extends View {
     }
 
     public SpreadView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs, 0);
+        this(context, attrs, 0);
     }
 
     public SpreadView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -41,8 +41,10 @@ public class SpreadView extends View {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SpreadView, defStyleAttr, 0);
         radius = a.getInt(R.styleable.SpreadView_spread_radius, radius);
         maxRadius = a.getInt(R.styleable.SpreadView_spread_max_radius, maxRadius);
-        int centerColor = a.getColor(R.styleable.SpreadView_spread_center_color, ContextCompat.getColor(context, android.R.color.holo_red_dark));
-        int spreadColor = a.getColor(R.styleable.SpreadView_spread_spread_color, ContextCompat.getColor(context, R.color.color_F71816));
+        int centerColor = a.getColor(R.styleable.SpreadView_spread_center_color,
+                ContextCompat.getColor(context, android.R.color.holo_red_dark));
+        int spreadColor = a.getColor(R.styleable.SpreadView_spread_spread_color,
+                ContextCompat.getColor(context, R.color.color_F71816));
         distance = a.getInt(R.styleable.SpreadView_spread_distance, distance);
         a.recycle();
 
@@ -54,6 +56,7 @@ public class SpreadView extends View {
         alphas.add(255);
         spreadRadius.add(0);
         spreadPaint = new Paint();
+        spreadPaint.setAntiAlias(true);
         spreadPaint.setStyle(Paint.Style.STROKE);
         spreadPaint.setAlpha(255);
         spreadPaint.setColor(spreadColor);
@@ -70,25 +73,27 @@ public class SpreadView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        //绘制当前所有的圆
         for (int i = 0; i < spreadRadius.size(); i++) {
             int alpha = alphas.get(i);
             spreadPaint.setAlpha(alpha);
             int width = spreadRadius.get(i);
             //绘制扩散的圆
-            canvas.drawCircle(centerX, centerY, radius + width, spreadPaint);
-            //每次扩散圆半径递增，透明度递减
+            canvas.drawCircle(centerX, centerY,
+                    radius + width, spreadPaint);
+            //更新透明度与半径
             if (alpha > 0 && width < 300) {
                 alpha = alpha - distance > 0 ? alpha - distance : 1;
                 alphas.set(i, alpha);
                 spreadRadius.set(i, width + distance);
             }
         }
-        //当最外层扩散圆半径达到最大半径的时候添加新的扩散圆
+        //重置
         if (spreadRadius.get(spreadRadius.size() - 1) > maxRadius) {
             spreadRadius.add(0);
             alphas.add(255);
         }
-        //超过八个扩散圆，删除最先绘制的圆，
+        //移除多余的圆
         if (spreadRadius.size() >= 8) {
             alphas.remove(0);
             spreadRadius.remove(0);
