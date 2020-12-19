@@ -1,6 +1,6 @@
-package com.md.lib_audio.event;
+package com.md.lib_audio.mediaplayer.event;
 
-import com.md.lib_audio.model.AudioBean;
+import com.md.lib_audio.mediaplayer.model.AudioBean;
 
 public class AudioLoadEvent {
     public AudioBean audioBean;

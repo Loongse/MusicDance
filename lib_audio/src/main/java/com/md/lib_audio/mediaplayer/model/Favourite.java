@@ -1,8 +1,7 @@
-package com.md.lib_audio.model;
+package com.md.lib_audio.mediaplayer.model;
 
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.ToOne;
 
 /**
  * 收藏表

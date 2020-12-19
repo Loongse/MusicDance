@@ -1,4 +1,4 @@
-package com.md.lib_audio.event;
+package com.md.lib_audio.mediaplayer.event;
 
 /**
  * 收藏、取消收藏事件

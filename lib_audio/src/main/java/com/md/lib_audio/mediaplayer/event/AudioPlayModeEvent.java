@@ -1,4 +1,4 @@
-package com.md.lib_audio.event;
+package com.md.lib_audio.mediaplayer.event;
 
 import com.md.lib_audio.core.AudioController;
 

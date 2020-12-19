@@ -11,14 +11,14 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.md.lib_audio.app.AudioHelper;
-import com.md.lib_audio.event.AudioCompleteEvent;
-import com.md.lib_audio.event.AudioErrorEvent;
-import com.md.lib_audio.event.AudioLoadEvent;
-import com.md.lib_audio.event.AudioPauseEvent;
-import com.md.lib_audio.event.AudioProgressEvent;
-import com.md.lib_audio.event.AudioReleaseEvent;
-import com.md.lib_audio.event.AudioStartEvent;
-import com.md.lib_audio.model.AudioBean;
+import com.md.lib_audio.mediaplayer.event.AudioCompleteEvent;
+import com.md.lib_audio.mediaplayer.event.AudioErrorEvent;
+import com.md.lib_audio.mediaplayer.event.AudioLoadEvent;
+import com.md.lib_audio.mediaplayer.event.AudioPauseEvent;
+import com.md.lib_audio.mediaplayer.event.AudioProgressEvent;
+import com.md.lib_audio.mediaplayer.event.AudioReleaseEvent;
+import com.md.lib_audio.mediaplayer.event.AudioStartEvent;
+import com.md.lib_audio.mediaplayer.model.AudioBean;
 
 import org.greenrobot.eventbus.EventBus;
 

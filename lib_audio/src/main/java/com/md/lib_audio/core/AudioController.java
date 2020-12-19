@@ -1,10 +1,10 @@
 package com.md.lib_audio.core;
 
-import com.md.lib_audio.event.AudioCompleteEvent;
-import com.md.lib_audio.event.AudioErrorEvent;
-import com.md.lib_audio.event.AudioPlayModeEvent;
+import com.md.lib_audio.mediaplayer.event.AudioCompleteEvent;
+import com.md.lib_audio.mediaplayer.event.AudioErrorEvent;
+import com.md.lib_audio.mediaplayer.event.AudioPlayModeEvent;
 import com.md.lib_audio.exception.AudioQueueEmptyException;
-import com.md.lib_audio.model.AudioBean;
+import com.md.lib_audio.mediaplayer.model.AudioBean;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
