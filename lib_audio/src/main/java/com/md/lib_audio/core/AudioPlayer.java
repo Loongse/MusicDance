@@ -8,8 +8,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.util.Log;
 
 import com.md.lib_audio.app.AudioHelper;
+import com.md.lib_audio.model.AudioBean;
 
 /**
  * 1.播放音频
@@ -55,6 +57,89 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
                 .getSystemService(Context.WIFI_SERVICE)).
                 createWifiLock(WifiManager.WIFI_MODE_FULL, TAG);
         mAudioFocusManager = new AudioFocusManager(AudioHelper.getContext(), this);
+    }
+
+    //获取播放器状态
+    public CustomMediaPlayer.Status getStatus() {
+        if (mMediaPlayer != null) {
+            return mMediaPlayer.getStatus();
+        } else {
+            return CustomMediaPlayer.Status.STOPPTED;
+        }
+    }
+
+    /**
+     * 对内提供加载方法
+     *
+     * @param audioBean
+     */
+    public void load(AudioBean audioBean) {
+        try {
+            //正常加载逻辑
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(audioBean.mUrl);
+            mMediaPlayer.prepareAsync();
+            //对外发送load事件
+        } catch (Exception e) {
+            //对外发送error事件
+        }
+    }
+
+    /**
+     * 内部开始播放
+     */
+    private void start() {
+        if (!mAudioFocusManager.requestAudioFocus()) {
+            Log.e(TAG, "获取音频焦点失败");
+        }
+        mMediaPlayer.start();
+        mWifiLock.acquire();
+        //对外开放start事件
+    }
+
+    /**
+     * 对外提供暂停方法
+     */
+    public void pause() {
+        if (getStatus() == CustomMediaPlayer.Status.STARTED) {
+            mMediaPlayer.pause();
+            //释放音频焦点WiFi lock
+            if (mWifiLock.isHeld()) {
+                mWifiLock.release();
+            }
+            //释放音频焦点
+            if (mAudioFocusManager != null) {
+                mAudioFocusManager.abandonAudioFocus();
+            }
+            //发送暂停事件
+        }
+    }
+
+    /**
+     * 对外提供恢复方法
+     */
+    public void resume() {
+        if (getStatus() == CustomMediaPlayer.Status.PAUSED) {
+            //直接复用start
+            start();
+        }
+    }
+
+    public void release() {
+        if (mMediaPlayer == null) {
+            return;
+        }
+        mMediaPlayer.release();
+        mMediaPlayer = null;
+        if (mAudioFocusManager != null) {
+            mAudioFocusManager.abandonAudioFocus();
+        }
+        if (mWifiLock.isHeld()) {
+            mWifiLock.release();
+        }
+        mWifiLock = null;
+        mAudioFocusManager = null;
+        //发送release销毁事件
     }
 
     @Override
