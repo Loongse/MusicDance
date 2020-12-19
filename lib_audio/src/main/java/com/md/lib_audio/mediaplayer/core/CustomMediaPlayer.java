@@ -1,4 +1,4 @@
-package com.md.lib_audio.core;
+package com.md.lib_audio.mediaplayer.core;
 
 import android.media.MediaPlayer;
 

@@ -1,6 +1,6 @@
 package com.md.lib_audio.mediaplayer.event;
 
-import com.md.lib_audio.core.CustomMediaPlayer;
+import com.md.lib_audio.mediaplayer.core.CustomMediaPlayer;
 
 public class AudioProgressEvent {
     public CustomMediaPlayer.Status mStatus;

@@ -1,4 +1,4 @@
-package com.md.lib_audio.core;
+package com.md.lib_audio.mediaplayer.core;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -63,7 +63,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
     //初始化
     private void init() {
         mMediaPlayer = new CustomMediaPlayer();
-        mMediaPlayer.setWakeMode(null, PowerManager.PARTIAL_WAKE_LOCK);
+        mMediaPlayer.setWakeMode(AudioHelper.getContext(), PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mMediaPlayer.setOnCompletionListener(this);
         mMediaPlayer.setOnPreparedListener(this);

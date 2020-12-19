@@ -1,9 +1,11 @@
-package com.md.lib_audio.core;
+package com.md.lib_audio.mediaplayer.core;
+
+import android.util.Log;
 
 import com.md.lib_audio.mediaplayer.event.AudioCompleteEvent;
 import com.md.lib_audio.mediaplayer.event.AudioErrorEvent;
 import com.md.lib_audio.mediaplayer.event.AudioPlayModeEvent;
-import com.md.lib_audio.exception.AudioQueueEmptyException;
+import com.md.lib_audio.mediaplayer.exception.AudioQueueEmptyException;
 import com.md.lib_audio.mediaplayer.model.AudioBean;
 
 import org.greenrobot.eventbus.EventBus;
@@ -240,6 +242,7 @@ public class AudioController {
      * 自动切换、暂停
      */
     public void playOrPause() {
+        Log.e("longchao", "playOrPause");
         if (isStartStatus()) {
             pause();
         } else if (isPauseStatus()) {

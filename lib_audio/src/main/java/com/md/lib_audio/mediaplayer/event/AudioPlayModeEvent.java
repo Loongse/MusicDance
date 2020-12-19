@@ -1,6 +1,6 @@
 package com.md.lib_audio.mediaplayer.event;
 
-import com.md.lib_audio.core.AudioController;
+import com.md.lib_audio.mediaplayer.core.AudioController;
 
 /**
  * 播放模式切换事件

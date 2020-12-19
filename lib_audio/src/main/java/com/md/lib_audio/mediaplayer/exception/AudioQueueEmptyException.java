@@ -1,4 +1,4 @@
-package com.md.lib_audio.exception;
+package com.md.lib_audio.mediaplayer.exception;
 
 /**
  * 播放队列为空异常
