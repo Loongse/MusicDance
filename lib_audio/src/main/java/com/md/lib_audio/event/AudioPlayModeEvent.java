@@ -1,5 +1,7 @@
 package com.md.lib_audio.event;
 
+import com.md.lib_audio.core.AudioController;
+
 /**
  * 播放模式切换事件
  */

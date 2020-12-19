@@ -11,7 +11,16 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.md.lib_audio.app.AudioHelper;
+import com.md.lib_audio.event.AudioCompleteEvent;
+import com.md.lib_audio.event.AudioErrorEvent;
+import com.md.lib_audio.event.AudioLoadEvent;
+import com.md.lib_audio.event.AudioPauseEvent;
+import com.md.lib_audio.event.AudioProgressEvent;
+import com.md.lib_audio.event.AudioReleaseEvent;
+import com.md.lib_audio.event.AudioStartEvent;
 import com.md.lib_audio.model.AudioBean;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * 1.播放音频
@@ -34,6 +43,14 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case TIME_MSG:
+                    //暂停时也需要更新进度，用于UI同步
+                    if (getStatus() == CustomMediaPlayer.Status.STARTED
+                            || getStatus() == CustomMediaPlayer.Status.PAUSED) {
+                        //UI类型处理事件
+                        EventBus.getDefault()
+                                .post(new AudioProgressEvent(getStatus(), getCurrentPosition(), getDuration()));
+                        sendEmptyMessageDelayed(TIME_MSG, TIME_INVAL);
+                    }
                     break;
             }
         }
@@ -86,8 +103,10 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
             mMediaPlayer.setDataSource(audioBean.mUrl);
             mMediaPlayer.prepareAsync();
             //对外发送load事件
+            EventBus.getDefault().post(new AudioLoadEvent(audioBean));
         } catch (Exception e) {
             //对外发送error事件
+            EventBus.getDefault().post(new AudioErrorEvent());
         }
     }
 
@@ -101,6 +120,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
         mMediaPlayer.start();
         mWifiLock.acquire();
         //对外开放start事件
+        EventBus.getDefault().post(new AudioStartEvent());
     }
 
     /**
@@ -118,6 +138,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
                 mAudioFocusManager.abandonAudioFocus();
             }
             //发送暂停事件
+            EventBus.getDefault().post(new AudioPauseEvent());
         }
     }
 
@@ -146,26 +167,52 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
         mWifiLock = null;
         mAudioFocusManager = null;
         //发送release销毁事件
+        EventBus.getDefault().post(new AudioReleaseEvent());
+    }
+
+    /**
+     * 获取音乐总时长，更新进度用
+     *
+     * @return
+     */
+    public int getDuration() {
+        if (getStatus() == CustomMediaPlayer.Status.STARTED
+                || getStatus() == CustomMediaPlayer.Status.PAUSED) {
+            return mMediaPlayer.getDuration();
+        }
+        return 0;
+    }
+
+    public int getCurrentPosition() {
+        if (getStatus() == CustomMediaPlayer.Status.STARTED
+                || getStatus() == CustomMediaPlayer.Status.PAUSED) {
+            return mMediaPlayer.getCurrentPosition();
+        }
+        return 0;
     }
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-
+        //缓存进度回调
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-
+        //播放完毕回调
+        EventBus.getDefault().post(new AudioCompleteEvent());
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        return false;
+        //播放出错回调
+        EventBus.getDefault().post(new AudioErrorEvent());
+        return true;
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-
+        //准备完毕
+        start();
     }
 
     @Override

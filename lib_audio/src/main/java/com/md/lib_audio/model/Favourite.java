@@ -13,7 +13,6 @@ public class Favourite {
     @NotNull
     String audioId;
     //一条收藏记录唯一的一个实体
-    @ToOne(joinProperty = "audioId")
     AudioBean audioBean;
 
     public Favourite(Long favouriteId, @NotNull String audioId) {

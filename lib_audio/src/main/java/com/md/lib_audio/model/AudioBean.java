@@ -1,6 +1,5 @@
 package com.md.lib_audio.model;
 
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
 import org.greenrobot.greendao.annotation.Unique;
@@ -24,10 +23,6 @@ public class AudioBean implements Serializable {
         this.albumInfo = albumInfo;
         this.albumPic = albumPic;
         this.totalTime = totalTime;
-    }
-
-    @Generated(hash = 1628963493)
-    public AudioBean() {
     }
 
     public String getId() {
