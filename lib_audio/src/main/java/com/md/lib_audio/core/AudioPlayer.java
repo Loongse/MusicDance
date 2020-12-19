@@ -28,6 +28,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
     private WifiManager.WifiLock mWifiLock;
     //音频焦点监视器
     private AudioFocusManager mAudioFocusManager;
+    private boolean isPauseByFocusLossTransient;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -66,6 +67,11 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
         } else {
             return CustomMediaPlayer.Status.STOPPTED;
         }
+    }
+
+    //设置音量
+    private void setVolume(float leftVol, float rightVol) {
+        if (mMediaPlayer != null) mMediaPlayer.setVolume(leftVol, rightVol);
     }
 
     /**
@@ -164,21 +170,30 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
 
     @Override
     public void audioFocusGrant() {
-
+        //再次获得焦点
+        setVolume(1.0f, 1.0f);
+        if (isPauseByFocusLossTransient) {
+            resume();
+        }
+        isPauseByFocusLossTransient = false;
     }
 
     @Override
     public void audioFocusLoss() {
-
+        //永久失去焦点
+        pause();
     }
 
     @Override
     public void audioFocusLossTransient() {
-
+        //暂时失去焦点
+        pause();
+        isPauseByFocusLossTransient = true;
     }
 
     @Override
     public void audioFocusLossDuck() {
-
+        //瞬间失去焦点
+        setVolume(0.5f, 0.5f);
     }
 }
