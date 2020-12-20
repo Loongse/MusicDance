@@ -112,6 +112,8 @@ public class MusicPlayerActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 //弹出歌单列表dialog
+                MusicListDialog dialog = new MusicListDialog(MusicPlayerActivity.this);
+                dialog.show();
             }
         });
         mInfoView = findViewById(R.id.album_view);
