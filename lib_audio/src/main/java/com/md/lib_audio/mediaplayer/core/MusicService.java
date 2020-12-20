@@ -10,21 +10,34 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.md.lib_audio.app.AudioHelper;
+import com.md.lib_audio.mediaplayer.event.AudioLoadEvent;
+import com.md.lib_audio.mediaplayer.event.AudioPauseEvent;
+import com.md.lib_audio.mediaplayer.event.AudioStartEvent;
 import com.md.lib_audio.mediaplayer.model.AudioBean;
 import com.md.lib_audio.mediaplayer.view.NotificationHelper;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+
+import static com.md.lib_audio.mediaplayer.view.NotificationHelper.NOTIFICATION_ID;
 
 /**
  * 音乐后台服务,并更新notification状态
  */
 public class MusicService extends Service implements NotificationHelper.NotificationHelperListener {
 
+    /**
+     * 常量
+     */
     private static String DATA_AUDIOS = "AUDIOS";
-    //actions
     private static String ACTION_START = "ACTION_START";
+
+    /**
+     * data
+     */
     private ArrayList<AudioBean> mAudioBeans;
     private NotificationReceiver mReceiver;
 
@@ -55,7 +68,18 @@ public class MusicService extends Service implements NotificationHelper.Notifica
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mAudioBeans = (ArrayList<AudioBean>) intent.getSerializableExtra(DATA_AUDIOS);
+        if (intent.getAction().equals(ACTION_START)) {
+            //播放音乐
+            plaMusic();
+            //初始化notification
+            NotificationHelper.getInstance().init(this);
+        }
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void plaMusic() {
+        AudioController.getInstance().setQueue(mAudioBeans);
+        AudioController.getInstance().play();
     }
 
     @Override
@@ -82,9 +106,27 @@ public class MusicService extends Service implements NotificationHelper.Notifica
 
     @Override
     public void onNotificationInit() {
-
+        //绑定notification与service，并且使用服务成为前台服务
+        startForeground(NOTIFICATION_ID, NotificationHelper.getInstance().getNotification());
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAudioLoadEvent(AudioLoadEvent event) {
+        //更新notification状态为加载状态
+        NotificationHelper.getInstance().showLoadStatus(event.audioBean);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAudioPlayEvent(AudioStartEvent event) {
+        //更新notification状态为play状态
+        NotificationHelper.getInstance().showPlayStatus();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAudioPauseEvent(AudioPauseEvent event) {
+        //更新notification状态为pause状态
+        NotificationHelper.getInstance().showPauseStatus();
+    }
 
     /**
      * 接受notification发送的广播
@@ -101,7 +143,22 @@ public class MusicService extends Service implements NotificationHelper.Notifica
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent == null || TextUtils.isEmpty(intent.getAction())) {
-                return;
+                String action = intent.getStringExtra(EXTRA);
+                switch (action) {
+                    case EXTRA_PLAY:
+                        AudioController.getInstance().playOrPause();
+                        break;
+                    case EXTRA_PRE:
+                        AudioController.getInstance().previous();
+                        ;
+                        break;
+                    case EXTRA_NEXT:
+                        AudioController.getInstance().next();
+                        break;
+                    case EXTRA_FAV:
+                        //收藏广播处理
+                        break;
+                }
             }
         }
     }
