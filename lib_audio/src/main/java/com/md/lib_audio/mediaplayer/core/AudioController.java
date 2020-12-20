@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * 控制播放逻辑
+ * 控制播放逻辑：添加控制方法时需要考虑通过event来通知更新UI
  */
 public class AudioController {
     /**
@@ -51,16 +51,14 @@ public class AudioController {
     }
 
     private AudioPlayer mAudioPlayer;//核心播放器
-    private ArrayList<AudioBean> mQueue;//歌曲队列
-    private int mQueueIndex;//当前播放歌曲索引
-    private PlayMode mPlayMode;//循环模式
+    //播放队列不能为空
+    private ArrayList<AudioBean> mQueue = new ArrayList<>();//歌曲队列
+    private int mQueueIndex = 0;//当前播放歌曲索引
+    private PlayMode mPlayMode = PlayMode.LOOP;//循环模式
 
     private AudioController() {
         EventBus.getDefault().register(this);
         mAudioPlayer = new AudioPlayer();
-        mQueue = new ArrayList<>();
-        mQueueIndex = 0;
-        mPlayMode = PlayMode.LOOP;
     }
 
     /**
@@ -70,9 +68,9 @@ public class AudioController {
         return mAudioPlayer.getStatus();
     }
 
-    private AudioBean getPlaying() {
+    private AudioBean getPlaying(int index) {
         if (mQueue != null && !mQueue.isEmpty() && mQueueIndex >= 0 && mQueueIndex < mQueue.size()) {
-            return mQueue.get(mQueueIndex);
+            return mQueue.get(index);
         } else {
             throw new AudioQueueEmptyException("当前播放队列为空，请先设置播放队列");
         }
@@ -83,14 +81,14 @@ public class AudioController {
         switch (mPlayMode) {
             case LOOP:
                 mQueueIndex = (mQueueIndex + 1) % mQueue.size();
-                break;
+                return getPlaying(mQueueIndex);
             case RANDOM:
                 mQueueIndex = new Random().nextInt(mQueue.size()) % mQueue.size();
-                break;
+                return getPlaying(mQueueIndex);
             case REPEAT:
-                break;
+                return getPlaying(mQueueIndex);
         }
-        return getPlaying();
+        return null;
     }
 
     //获取上一首播放
@@ -98,14 +96,14 @@ public class AudioController {
         switch (mPlayMode) {
             case LOOP:
                 mQueueIndex = (mQueueIndex - 1) % mQueue.size();
-                break;
+                return getPlaying(mQueueIndex);
             case RANDOM:
                 mQueueIndex = new Random().nextInt(mQueue.size()) % mQueue.size();
-                break;
+                return getPlaying(mQueueIndex);
             case REPEAT:
-                break;
+                return getPlaying(mQueueIndex);
         }
-        return getPlaying();
+        return null;
     }
 
     //加载
@@ -123,7 +121,7 @@ public class AudioController {
      * @param queue
      */
     public void setQueue(ArrayList<AudioBean> queue) {
-        this.setQueue(queue, 0);
+        setQueue(queue, 0);
     }
 
     public void setQueue(ArrayList<AudioBean> queue, int queueIndex) {
@@ -143,21 +141,19 @@ public class AudioController {
     }
 
     /**
-     * 添加单一歌曲
-     *
-     * @param bean
+     * 队首添加歌曲
      */
     public void addAudio(AudioBean bean) {
-        this.addAudio(0, bean);//默认添加在首部
+        addAudio(0, bean);//默认添加在首部
     }
 
     public void addAudio(int index, AudioBean bean) {
         if (mQueue == null) {
-            throw new AudioQueueEmptyException("当前播放队列为空");
+            throw new AudioQueueEmptyException("当前播放队列为空,请先设置播放队列");
         }
         int query = queryAudio(bean);
         if (query <= -1) {
-            //没有添加过
+            //没有添加过,添加且直接播放
             addCustomAudio(index, bean);
             setPlayIndex(index);
         } else {
@@ -201,14 +197,14 @@ public class AudioController {
      * 对外提供当前获取的歌曲信息
      */
     public AudioBean getNowPlaying() {
-        return getPlaying();
+        return getPlaying(mQueueIndex);
     }
 
     /**
      * 对外提供的play方法
      */
     public void play() {
-        AudioBean bean = getNowPlaying();
+        AudioBean bean = getPlaying(mQueueIndex);
         load(bean);
     }
 
@@ -222,6 +218,7 @@ public class AudioController {
 
     public void release() {
         mAudioPlayer.release();
+        EventBus.getDefault().unregister(this);
     }
 
     /**
@@ -261,6 +258,20 @@ public class AudioController {
             GreenDaoHelper.addFavourite(getNowPlaying());
             EventBus.getDefault().post(new AudioFavouriteEvent(true));
         }
+    }
+
+    /**
+     * 对外提供获取当前播放事件
+     */
+    public int getNowPlayTime() {
+        return mAudioPlayer.getCurrentPosition();
+    }
+
+    /**
+     * 对外提供歌曲总时长
+     */
+    public int getTotalPlayTime() {
+        return mAudioPlayer.getDuration();
     }
 
     /**

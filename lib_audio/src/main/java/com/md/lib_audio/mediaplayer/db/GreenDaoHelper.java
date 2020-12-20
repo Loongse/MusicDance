@@ -17,11 +17,14 @@ public class GreenDaoHelper {
     private static SQLiteDatabase mDb;
     //管理数据库
     private static DaoMaster mDaoMaster;
-    //管理实体dao
+    //管理实体dao:不对业务层直接暴露
     private static DaoSession mDaoSession;
 
+    /**
+     * 初始化greendao
+     */
     public static void initDataBase() {
-        mhelper = new DaoMaster.DevOpenHelper(AudioHelper.getContext(), DB_NAME);
+        mhelper = new DaoMaster.DevOpenHelper(AudioHelper.getContext(), DB_NAME, null);
         mDb = mhelper.getWritableDatabase();
         mDaoMaster = new DaoMaster(mDb);
         mDaoSession = mDaoMaster.newSession();
@@ -29,38 +32,32 @@ public class GreenDaoHelper {
 
     /**
      * 添加收藏
-     *
-     * @param bean
      */
-    public static void addFavourite(AudioBean bean) {
+    public static void addFavourite(AudioBean audioBean) {
         FavouriteDao dao = mDaoSession.getFavouriteDao();
         Favourite favourite = new Favourite();
-        favourite.setAudioId(bean.id);
-        favourite.setAudioBean(bean);
+        favourite.setAudioId(audioBean.id);
+        favourite.setAudioBean(audioBean);
         dao.insertOrReplace(favourite);
     }
 
     /**
      * 移除一个收藏
-     *
-     * @param bean
      */
-    public static void removeFavourite(AudioBean bean) {
+    public static void removeFavourite(AudioBean audioBean) {
         FavouriteDao dao = mDaoSession.getFavouriteDao();
-        Favourite favourite = selectFavourite(bean);
+        Favourite favourite = dao.queryBuilder()
+                .where(FavouriteDao.Properties.AudioId.eq(audioBean.id)).unique();
         dao.delete(favourite);
     }
 
     /**
      * 查询一个收藏
-     *
-     * @param bean
-     * @return
      */
-    public static Favourite selectFavourite(AudioBean bean) {
+    public static Favourite selectFavourite(AudioBean audioBean) {
         FavouriteDao dao = mDaoSession.getFavouriteDao();
         Favourite favourite = dao.queryBuilder().where(
-                FavouriteDao.Properties.AudioId.eq(bean.id)
+                FavouriteDao.Properties.AudioId.eq(audioBean.id)
         ).unique();
         return favourite;
     }
