@@ -2,6 +2,8 @@ package com.md.lib_audio.app;
 
 import android.content.Context;
 
+import com.md.lib_audio.mediaplayer.db.GreenDaoHelper;
+
 /**
  * lib_audio与外部通信类
  */
@@ -11,6 +13,7 @@ public final class AudioHelper {
 
     public static void init(Context context) {
         mContext = context;
+        GreenDaoHelper.initDataBase();
     }
 
     public static Context getContext() {
