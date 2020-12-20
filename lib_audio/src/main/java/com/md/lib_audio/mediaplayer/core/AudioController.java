@@ -2,8 +2,10 @@ package com.md.lib_audio.mediaplayer.core;
 
 import android.util.Log;
 
+import com.md.lib_audio.mediaplayer.db.GreenDaoHelper;
 import com.md.lib_audio.mediaplayer.event.AudioCompleteEvent;
 import com.md.lib_audio.mediaplayer.event.AudioErrorEvent;
+import com.md.lib_audio.mediaplayer.event.AudioFavouriteEvent;
 import com.md.lib_audio.mediaplayer.event.AudioPlayModeEvent;
 import com.md.lib_audio.mediaplayer.exception.AudioQueueEmptyException;
 import com.md.lib_audio.mediaplayer.model.AudioBean;
@@ -247,6 +249,17 @@ public class AudioController {
             pause();
         } else if (isPauseStatus()) {
             resume();
+        }
+    }
+
+    public void changeFavouriteStatus() {
+        if (null != GreenDaoHelper.selectFavourite(getNowPlaying())) {
+            //取消收藏
+            GreenDaoHelper.removeFavourite(getNowPlaying());
+            EventBus.getDefault().post(new AudioFavouriteEvent(false));
+        } else {
+            GreenDaoHelper.addFavourite(getNowPlaying());
+            EventBus.getDefault().post(new AudioFavouriteEvent(true));
         }
     }
 

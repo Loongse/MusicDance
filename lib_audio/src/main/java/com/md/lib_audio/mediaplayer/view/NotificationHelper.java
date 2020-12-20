@@ -14,6 +14,7 @@ import com.md.lib_audio.R;
 import com.md.lib_audio.app.AudioHelper;
 import com.md.lib_audio.mediaplayer.core.AudioController;
 import com.md.lib_audio.mediaplayer.core.MusicService;
+import com.md.lib_audio.mediaplayer.db.GreenDaoHelper;
 import com.md.lib_audio.mediaplayer.model.AudioBean;
 import com.md.lib_image_loader.app.ImageLoaderManager;
 
@@ -44,6 +45,14 @@ public class NotificationHelper {
 
     public static NotificationHelper getInstance() {
         return SingletonHolder.instance;
+    }
+
+    public void changeFavouriteStatus(boolean isFavourite) {
+        if (mRemoteViews != null) {
+            mRemoteViews.setImageViewResource(R.id.favourite_view, isFavourite ?
+                    R.mipmap.note_btn_loved : R.mipmap.note_btn_love_white);
+            mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+        }
     }
 
     private static class SingletonHolder {
@@ -94,6 +103,14 @@ public class NotificationHelper {
         mRemoteViews = new RemoteViews(packageName, layoutId);
         mRemoteViews.setTextViewText(R.id.title_view, mAudioBean.name);
         mRemoteViews.setTextViewText(R.id.tip_view, mAudioBean.album);
+
+        if (GreenDaoHelper.selectFavourite(mAudioBean) != null) {
+            //被收藏过
+            mRemoteViews.setImageViewResource(R.id.favourite_view, R.mipmap.note_btn_loved);
+        } else {
+            //没收藏过
+            mRemoteViews.setImageViewResource(R.id.favourite_view, R.mipmap.note_btn_love_white);
+        }
 
         int smallLayoutId = R.layout.notification_small_layout;
         mSmallRemoteViews = new RemoteViews(packageName, smallLayoutId);
@@ -163,6 +180,13 @@ public class NotificationHelper {
                             mAudioBean.albumPic
                     );
             //更新收藏状态
+            if (GreenDaoHelper.selectFavourite(mAudioBean) != null) {
+                //被收藏过
+                mRemoteViews.setImageViewResource(R.id.favourite_view, R.mipmap.note_btn_loved);
+            } else {
+                //没收藏过
+                mRemoteViews.setImageViewResource(R.id.favourite_view, R.mipmap.note_btn_love_white);
+            }
             //更新小图片
             mSmallRemoteViews.setImageViewResource(R.id.play_view, R.mipmap.note_btn_pause_white);
             mSmallRemoteViews.setTextViewText(R.id.title_view, mAudioBean.name);

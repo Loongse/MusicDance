@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.md.lib_audio.app.AudioHelper;
+import com.md.lib_audio.mediaplayer.event.AudioFavouriteEvent;
 import com.md.lib_audio.mediaplayer.event.AudioLoadEvent;
 import com.md.lib_audio.mediaplayer.event.AudioPauseEvent;
 import com.md.lib_audio.mediaplayer.event.AudioStartEvent;
@@ -128,6 +129,12 @@ public class MusicService extends Service implements NotificationHelper.Notifica
         NotificationHelper.getInstance().showPauseStatus();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onAudioFavouriteEvent(AudioFavouriteEvent event) {
+        //更新notification状态为pause
+        NotificationHelper.getInstance().changeFavouriteStatus(event.isFavourite);
+    }
+
     /**
      * 接受notification发送的广播
      */
@@ -157,6 +164,7 @@ public class MusicService extends Service implements NotificationHelper.Notifica
                         break;
                     case EXTRA_FAV:
                         //收藏广播处理
+                        AudioController.getInstance().changeFavouriteStatus();
                         break;
                 }
             }
