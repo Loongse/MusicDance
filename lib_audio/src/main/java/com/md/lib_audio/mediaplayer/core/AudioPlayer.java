@@ -48,7 +48,9 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
                             || getStatus() == CustomMediaPlayer.Status.PAUSED) {
                         //UI类型处理事件
                         EventBus.getDefault()
-                                .post(new AudioProgressEvent(getStatus(), getCurrentPosition(), getDuration()));
+                                .post(new AudioProgressEvent(getStatus(),
+                                        getCurrentPosition(),
+                                        getDuration()));
                         sendEmptyMessageDelayed(TIME_MSG, TIME_INVAL);
                     }
                     break;
@@ -119,6 +121,8 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
         }
         mMediaPlayer.start();
         mWifiLock.acquire();
+        //更新进度
+        mHandler.sendEmptyMessage(TIME_MSG);
         //对外开放start事件
         EventBus.getDefault().post(new AudioStartEvent());
     }
@@ -166,6 +170,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener,
         }
         mWifiLock = null;
         mAudioFocusManager = null;
+        mHandler.removeCallbacksAndMessages(null);
         //发送release销毁事件
         EventBus.getDefault().post(new AudioReleaseEvent());
     }

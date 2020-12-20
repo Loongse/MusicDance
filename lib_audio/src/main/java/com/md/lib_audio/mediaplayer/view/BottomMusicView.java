@@ -1,6 +1,7 @@
 package com.md.lib_audio.mediaplayer.view;
 
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -61,6 +62,7 @@ public class BottomMusicView extends RelativeLayout {
             @Override
             public void onClick(View view) {
                 //跳转到音乐播放Activity
+                MusicPlayerActivity.start((Activity) mContext);
             }
         });
         mLeftView = rootView.findViewById(R.id.album_view);
