@@ -31,6 +31,7 @@ import com.md.lib_audio.mediaplayer.model.AudioBean;
 import com.md.lib_audio.mediaplayer.utils.Utils;
 import com.md.lib_common_ui.base.BaseActivity;
 import com.md.lib_image_loader.app.ImageLoaderManager;
+import com.md.lib_share.share.ShareDialog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -290,6 +291,13 @@ public class MusicPlayerActivity extends BaseActivity {
      * 分享音乐给好友
      */
     private void shareMusic(String url, String name) {
-
+        ShareDialog dialog = new ShareDialog(this);
+        dialog.setShareType(5);
+        dialog.setShareTitle(name);
+        dialog.setShareTitleUrl(url);
+        dialog.setShareText("慕课网");
+        dialog.setShareSite("imooc");
+        dialog.setShareSiteUrl("http://www.imooc.com");
+        dialog.show();
     }
 }
