@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.md.lib_audio.app.AudioHelper;
 import com.md.lib_audio.mediaplayer.event.AudioFavouriteEvent;
@@ -68,6 +69,7 @@ public class MusicService extends Service implements NotificationHelper.Notifica
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e("TAG", "onStartCommand: " );
         mAudioBeans = (ArrayList<AudioBean>) intent.getSerializableExtra(DATA_AUDIOS);
         if (intent.getAction().equals(ACTION_START)) {
             //播放音乐
